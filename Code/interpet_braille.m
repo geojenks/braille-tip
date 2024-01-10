@@ -1,13 +1,27 @@
-%% Code to process raw data from the Braille-tip to accompany ""
+%% Code to process raw data from the Braille-tip to accompany the paper
+% Braille-tip: Structured Small-Footprint Tactile Sensor for High Acuity
+% Dynamic Tactile Tasks
+% George P Jenkinson, Andrew T Conn, Antonia Tzemanaki
 %
-% signiture 
+% signature 
 % Author: G.Jenkinson
 % E-Mail: george.jenkinson.2018@bristol.ac.uk
 % Date: Jan 2024
 %
+% For demonstrations linked in paper, load "data-n" or "data-text" and run
+% interpret_braille(braille_data), i.e.:
+%
+% load('data-n.mat')
+% interpet_braille(braille_data);
+%
+% or
+%
+% load('data-text.mat')
+% interpet_braille(braille_data);
+
 % braille is time series data made up of time and data columns for each
 % sensory channel
-function [letter, binary, binaries] = interpet_braille(braille, prev_letters, binaries, recursion)
+function [letters, binary, binaries] = interpet_braille(braille, prev_letters, recursion)
 
 %% Initialise
 if ~exist('prev_letters','var')
@@ -22,14 +36,15 @@ else
   recursion = recursion + 1;
 end
 
-% uncomment to plot truncated data at each cut down
+
+% uncomment to plot truncated data at each recursion
 figure;
 j = [4 5 6 9 10 11 14 15 16];
 for i = 1:9
 subplot(9,1,i);
 plot(braille{1,j(i)}, braille{2,j(i)});
 end
-
+%}
 
 threshold = 0.4;
 time = cell(1,19);
@@ -56,6 +71,16 @@ for chan = [4, 5, 6, 9, 10, 11, 14, 15, 16]
     data{chan} = datum>threshold;
 
 end
+
+
+% uncomment to plot truncated binary data at each recursion
+figure;
+j = [4 5 6 9 10 11 14 15 16];
+for i = 1:9
+subplot(9,1,i);
+plot(time{j(i)}, data{j(i)});
+end
+%}
 
 %% Find times of next peaks in data
 
@@ -191,9 +216,9 @@ braille_dict{bin2dec('101011')} = 'z';
 
 %% Process binary into letter
 if strjoin(string(binary(:))) == "0 0 0 0 0 0"
-    letter = '';
+    letters = '';
 else
-    letter = braille_dict{bin2dec(strjoin(string(binary(:))))};
+    letters = braille_dict{bin2dec(strjoin(string(binary(:))))};
 end
 
 % split the data at the start of the next letter
@@ -206,18 +231,19 @@ for i = 1:3
     braille{2,col3(i)} = data{col3(i)}(time{col3(i)}>cutoff);
 end
 
-disp(letter)
+disp(letters)
 % if end of word/string, end recursion, print letters, and read aloud
 if strjoin(string(binary(:))) == "0 0 0 0 0 0"
-    disp(prev_letters+letter)
+    disp(prev_letters+letters)
     % subsidiary (made by another author) function to read text aloud
     addpath('text2speech')
-    tts(prev_letters+letter)
+    tts(prev_letters+letters)
+    letters = prev_letters+letters;
     binaries = [2 ;2 ;2];
     return
 else
     % recurse
-    [~, ~, binaries] = interpet_braille(braille, prev_letters+letter, binary, recursion);
+    [letters, ~, binaries] = interpet_braille(braille, prev_letters+letters, recursion);
     binaries = [binary [2 ; 2 ;2] binaries];
 end
 
