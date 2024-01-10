@@ -9,3 +9,5 @@ interpet_braille_old.m
 nextPeakLocation.m
 thirdPeakLocation.m
 write_braille_dict.m
+Braille_data.mat
+Braille_process.m
