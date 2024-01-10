@@ -1,4 +1,4 @@
-
+.gitignore
 checkOverlapOrFirst.m
 braille-data.mat
 Braille_process_2.m
