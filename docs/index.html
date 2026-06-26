@@ -106,8 +106,6 @@
   .opt:hover{border-color:#cfcfcf}
   .opt .ol{font-weight:700;display:block}
   .opt .od{color:var(--muted);font-size:12px}
-  .opt-skip{border:2px dashed var(--bCol);border-radius:9px;padding:9px 11px;background:#eef3fc;font-size:13px;color:#27508f}
-  .opt-skip .unexplored{display:block;margin-top:4px;color:#8a5a00;font-style:italic}
   .opt.sel[data-side="A"]{border-color:var(--aCol);background:#fdf3ec;box-shadow:0 0 0 1px var(--aCol) inset}
   .opt.sel[data-side="B"]{border-color:var(--bCol);background:#eef3fc;box-shadow:0 0 0 1px var(--bCol) inset}
   .cfg-out{padding:16px 22px 22px;background:#fcfcfd}
@@ -224,12 +222,13 @@
       <tr><td>1</td><td><b>Transduction</b></td><td class="a">Optical: dyed water + camera + CV</td><td class="b">Capacitive: liquid metal + outer plate + voltage reader</td></tr>
       <tr><td>2</td><td><b>Tip fabrication</b></td><td class="a">Cast Ecoflex in a mould</td><td class="b">Direct-print silicone (Form 3, opaque black)</td></tr>
       <tr><td>3</td><td><b>Solid parts</b></td><td class="a"><b>FDM</b> — easier casting, larger builds</td><td class="b"><b>Resin/SLA</b> — precise, small builds</td></tr>
-      <tr><td>4</td><td><b>Tubing attach</b></td><td class="a">Printed barbs</td><td class="b">Threaded insert + push-fit coupler</td></tr>
+      <tr><td>4</td><td><b>Channels</b></td><td class="a">Coupled tubing (barbs / coupler)</td><td class="b">Printed channel matrix (CAD'd channels)</td></tr>
       <tr><td>5</td><td><b>Filling</b></td><td class="a">Back-fill interface, then top up tubes</td><td class="b">Direct small-syringe (if small enough)</td></tr>
     </table>
-    <p style="font-size:13px;color:var(--muted)"><b>One dependency:</b> if you <b>direct-print the tip (Fork&nbsp;2B)</b>, the
-    printed channels act as the tubing, so <b>Fork&nbsp;4 is skipped</b> and you fill the channels directly. Proven for
-    capacitance; "printed tubing" for optical is unexplored.</p>
+    <p style="font-size:13px;color:var(--muted)"><b>On channels (Fork&nbsp;4):</b> the "printed channel matrix" trades high
+    <b>design</b> effort for low <b>fabrication</b> effort (no coupling), and is <b>independent of how you make the
+    tip</b>. Printed channels + capacitance is proven (the merged device); printed channels + <b>optical</b> ("printed
+    tubing") is unexplored.</p>
     <div class="note"><b>Key fact:</b> the camera never images the silicone tip — it films a <b>downstream length of
     transparent tubing</b>. Whether the tip is clear or opaque black makes no difference to either transduction.</div>
   </div>
@@ -336,35 +335,36 @@
         <figcaption>Directly-printed (opaque) tip with its clear resin backing.</figcaption></figure>
       <div class="note"><b>Trade-off:</b> direct printing skips moulding and is fast/repeatable at small scale. Tip opacity
       does <b>not</b> affect transduction (the camera films downstream tubing, not the tip). <b>But</b> you <b>can't see
-      inside an opaque tip</b>, so some steps — e.g. <b>filling the cavities — become a bit of a shoot-and-hope</b>. <b>Bonus:</b> the printed channels can <b>double as the tubing</b>, so Step&nbsp;4 is skipped — proven for capacitance; "printed tubing" for optical is unexplored.</div>
+      inside an opaque tip</b>, so some steps — e.g. <b>filling the cavities — become a bit of a shoot-and-hope</b>.</div>
     </div>
   </div>
 </section>
 
-<!-- STEP 4 TUBING -->
-<section class="step" data-skip-fork="tip" data-skip-side="B">
-  <div class="step-head"><div class="step-num">4</div><h2>Attach the tubing <span style="font-size:14px;color:var(--muted)">— Fork 4</span></h2></div>
+<!-- STEP 4 CHANNELS -->
+<section class="step">
+  <div class="step-head"><div class="step-num">4</div><h2>Channels &amp; tubing <span style="font-size:14px;color:var(--muted)">— Fork 4</span></h2></div>
   <div class="step-body">
-    <div class="note"><b>Direct-printed the tip (Fork 2B)? You can skip this whole step.</b> The printed resin channels
-    <b>are</b> your tubing — nothing to fit or couple; you fill them directly (Step 5). This is proven for the capacitive
-    merge (Step 6). Doing the same for the <b>optical</b> readout — "<b>printed tubing</b>" — is an <b>unexplored but
-    promising</b> path. The two methods below apply when you <b>cast</b> the tip (Fork 2A).</div>
-    <div class="forkblock" data-fork="tubing" data-side="A">
-      <h3><span class="fork forkA">Fork 4A</span>Printed barbs</h3>
-      <p>Slide elastomeric tubing onto each barbed shaft under the base. <b>Ensure enough spacing between barbs for the
-      tubing.</b> Fiddly at 19-channel density.</p>
-      <figure class="big" style="max-width:460px"><img src="instructables/tubing_barbs.png" alt="tubing on barbs">
-        <figcaption>Tubing on the printed barbed shafts.</figcaption></figure>
+    <p>How the taxels connect to their fluid channels is a trade between <b>design effort</b> and <b>fabrication
+    effort</b> — and it's <b>independent of how you made the tip</b> (print the tip and use normal tubing, or cast the tip
+    and print a channel matrix — any combination works).</p>
+    <div class="forkblock" data-fork="channels" data-side="A">
+      <h3><span class="fork forkA">Fork 4A</span>Coupled tubing <span style="font-weight:400;color:var(--muted)">— low design load, higher fabrication load</span></h3>
+      <p>Fit <b>existing tubing</b> to the sensor. Two methods:</p>
+      <ul>
+        <li><b>Printed barbs</b> — slide elastomeric tubing onto each barbed shaft; ensure enough spacing between barbs for the tubing. Fiddly at 19-channel density.</li>
+        <li><b>Threaded insert + push-fit coupler</b> — heat-set a threaded insert into a slightly-undersized hole with a soldering iron (e.g. <a href="https://uk.rs-online.com/web/p/threaded-inserts/0278607" target="_blank" rel="noopener">RS threaded inserts</a>), then screw in a threaded push-fit coupler. Roomy/expensive — best when you have the space (e.g. LM builds).</li>
+      </ul>
+      <div class="imgrow">
+        <figure class="big"><img src="instructables/tubing_barbs.png" alt="tubing on barbs"><figcaption>Tubing on printed barbed shafts.</figcaption></figure>
+        <figure class="big"><img src="instructables/tubing_insert_coupler.png" alt="insert and coupler"><figcaption>Heat-set threaded insert + push-fit coupler.</figcaption></figure>
+      </div>
     </div>
-    <div class="forkblock" data-fork="tubing" data-side="B">
-      <h3><span class="fork forkB">Fork 4B</span>Threaded insert + push-fit coupler</h3>
-      <p>Push a <b>threaded insert</b> into a plastic hole made <i>just slightly too small</i> for it, using a
-      <b>soldering iron</b> to heat-set it (e.g.
-      <a href="https://uk.rs-online.com/web/p/threaded-inserts/0278607" target="_blank" rel="noopener">RS threaded inserts</a>).
-      Then screw in a <b>threaded push-fit coupler</b> for the (silicone) tubing. Nice for liquid metal <b>if you have the
-      space</b>, but quite <b>large/expensive</b>.</p>
-      <figure class="big" style="max-width:460px"><img src="instructables/tubing_insert_coupler.png" alt="insert and coupler">
-        <figcaption>Heat-set threaded insert + push-fit coupler.</figcaption></figure>
+    <div class="forkblock" data-fork="channels" data-side="B">
+      <h3><span class="fork forkB">Fork 4B</span>Printed channel matrix <span style="font-weight:400;color:var(--muted)">— high design load, low fabrication load</span></h3>
+      <p>CAD <b>all the channels</b> into a (clear) resin part so they're integral to the sensor — there's <b>nothing to
+      couple</b>; you fill the channels directly (Step 5). This is exactly the clear resin backing used in the merged
+      device (Step 6). For capacitance it's <b>proven</b>; for the <b>optical</b> readout this "<b>printed tubing</b>"
+      route is <b>unexplored</b> but promising.</p>
     </div>
   </div>
 </section>
@@ -394,7 +394,7 @@
     <p>The proven merge: it looks like the original Braille-tip but uses liquid metal.</p>
     <ol>
       <li><b>Direct-print the tip</b> in opaque black silicone (Fork 2B).</li>
-      <li>Print a <b>clear resin backing</b> (decontaminated, Step 2) that <b>plugs directly into</b> the tip.</li>
+      <li>Print a <b>clear resin backing</b> — this is the <b>printed channel matrix</b> (Fork&nbsp;4B), decontaminated (Step&nbsp;2), that <b>plugs directly into</b> the tip.</li>
       <li>Per channel, place the <b>outer capacitive plate</b> — a <b>copper tube that slips around</b> the insulated LM channel (a coil if the channel must flex). <i>(This is the novel step, shown below.)</i></li>
       <li><b>Back-fill the liquid metal from behind</b> the channel, then <b>seal it off</b>; ground it with tungsten wire (or a push-fit coupler if large enough).</li>
       <li>Read out per Step 7B.</li>
@@ -539,11 +539,11 @@ const FORKS = [
        recipe:{title:"Print solid parts on FDM", body:"Cheaper, makes casting easier, good for larger builds. No UV/IPA post-processing needed."}},
     B:{label:"Resin / SLA", desc:"precise, small",
        recipe:{title:"Print solid parts on resin/SLA", body:"Much more precise (small builds). Apply a THOROUGH UV cure + IPA wash — uncured resin inhibits platinum-cure silicone where they contact."}} },
-  { id:"tubing", q:"Tubing attachment",
-    A:{label:"Barbs", desc:"printed barbs",
-       recipe:{title:"Attach tubing via printed barbs", body:"Slide tubing onto each barbed shaft. Leave enough spacing between barbs for the tubing."}},
-    B:{label:"Insert + coupler", desc:"threaded insert",
-       recipe:{title:"Attach tubing via threaded insert + coupler", body:"Heat-set a threaded insert into a slightly-undersized hole with a soldering iron, then screw in a threaded push-fit coupler. Roomy/expensive — best when you have space (e.g. LM builds)."}} },
+  { id:"channels", q:"Channels",
+    A:{label:"Coupled tubing", desc:"low design, more fab",
+       recipe:{title:"Couple tubing to the sensor", body:"Fit existing tubing — printed barbs, or a heat-set threaded insert + push-fit coupler. Low design load, higher fabrication load."}},
+    B:{label:"Printed matrix", desc:"high design, less fab",
+       recipe:{title:"Print a resin channel matrix", body:"CAD all channels into a (clear) resin part so they're integral — nothing to couple, fill directly. High design load, low fabrication load."}} },
   { id:"filling", q:"Filling method",
     A:{label:"Back-fill", desc:"then top up tubes",
        recipe:{title:"Fill by back-filling", body:"Introduce fluid behind the tubing at the interface, fill the tubes most of the way, THEN attach. Tap out air bubbles."}},
@@ -554,19 +554,11 @@ const MAINT = {
   A:"Maintenance (optical): black food dye lasts ~days–week then goes gummy — flush & refill. A flush system makes this fast.",
   B:"Maintenance (liquid metal): the NaOH cap is consumed quickly — replenish it, work under argon, or use an alternative conductor. Keep the LM capped to avoid an oxide skin."
 };
-const ORDER = ["solid","tip","tubing","filling","transduction"];
-const state = { transduction:"A", tip:"A", solid:"A", tubing:"A", filling:"A" };
+const ORDER = ["solid","tip","channels","filling","transduction"];
+const state = { transduction:"A", tip:"A", solid:"A", channels:"A", filling:"A" };
 
 function render(){
-  document.getElementById("flow").innerHTML = FORKS.map((f,i)=>{
-    if(f.id==='tubing' && state.tip==='B'){
-      return `
-    <div class="node">
-      <div class="q"><span class="n">${i+1}</span>${f.q}</div>
-      <div class="opt-skip">Skipped — your <b>direct-printed channels are the tubing</b>.${state.transduction==='A' ? '<span class="unexplored">Optical via printed channels ("printed tubing") is unexplored.</span>' : ''}</div>
-    </div>`;
-    }
-    return `
+  document.getElementById("flow").innerHTML = FORKS.map((f,i)=>`
     <div class="node">
       <div class="q"><span class="n">${i+1}</span>${f.q}</div>
       <div class="opts">
@@ -576,17 +568,14 @@ function render(){
                     <span class="ol">${o.label}</span><span class="od">${o.desc}</span></div>`;
         }).join("")}
       </div>
-    </div>`;
-  }).join("");
+    </div>`).join("");
   document.getElementById("recipe").innerHTML = ORDER.map(id=>{
-    if(id==='tubing' && state.tip==='B'){
-      return `<li><b>Tubing — not needed</b><span class="tagline">Your direct-printed channels act as the tubing; nothing to fit or couple, fill them directly.${state.transduction==='A' ? ' (Optical via printed channels is unexplored.)' : ''}</span></li>`;
-    }
     const f = FORKS.find(x=>x.id===id); const o = f[state[id]];
-    return `<li><b>${o.recipe.title}</b><span class="tagline">${o.recipe.body}</span></li>`;
+    let body = o.recipe.body;
+    if(id==='channels' && state.channels==='B' && state.transduction==='A') body += ' (Optical via printed channels is unexplored.)';
+    return `<li><b>${o.recipe.title}</b><span class="tagline">${body}</span></li>`;
   }).join("");
   document.getElementById("chips").innerHTML = FORKS.map(f=>{
-    if(f.id==='tubing' && state.tip==='B') return `<span class="chip B">Tubing: printed channels (skipped)</span>`;
     const side=state[f.id]; return `<span class="chip ${side}">${f.q}: ${f[side].label}</span>`;
   }).join("");
   document.getElementById("maint").textContent = MAINT[state.transduction];
@@ -595,8 +584,8 @@ function render(){
 function pick(id,side){ state[id]=side; render(); }
 function preset(kind){
   Object.assign(state, kind==="optical"
-    ? {transduction:"A",tip:"A",solid:"A",tubing:"A",filling:"A"}
-    : {transduction:"B",tip:"B",solid:"B",tubing:"B",filling:"B"});
+    ? {transduction:"A",tip:"A",solid:"A",channels:"A",filling:"A"}
+    : {transduction:"B",tip:"B",solid:"B",channels:"B",filling:"B"});
   render();
 }
 function toggleFilter(){
@@ -612,18 +601,13 @@ function applyFilter(){
     const f = el.dataset.fork, s = el.dataset.side;
     el.style.display = (on && f && state[f] !== s) ? 'none' : '';
   });
-  // dependency: skip an element entirely when a given fork is on a given side
-  document.querySelectorAll('[data-skip-fork]').forEach(el=>{
-    el.style.display = (on && state[el.dataset.skipFork] === el.dataset.skipSide) ? 'none' : '';
-  });
 }
 function copyRecipe(){
   const lines = ORDER.map((id,i)=>{
-    if(id==='tubing' && state.tip==='B'){
-      return `${i+1}. Tubing — not needed\n   Direct-printed channels act as the tubing; nothing to fit or couple.${state.transduction==='A' ? ' (Optical via printed channels is unexplored.)' : ''}`;
-    }
     const f=FORKS.find(x=>x.id===id); const o=f[state[id]];
-    return `${i+1}. ${o.recipe.title}\n   ${o.recipe.body}`; });
+    let body = o.recipe.body;
+    if(id==='channels' && state.channels==='B' && state.transduction==='A') body += ' (Optical via printed channels is unexplored.)';
+    return `${i+1}. ${o.recipe.title}\n   ${body}`; });
   const head = "MY BRAILLE-TIP BUILD\n" + FORKS.map(f=>`• ${f.q}: ${f[state[f.id]].label}`).join("\n");
   const txt = head + "\n\nWORKFLOW:\n" + lines.join("\n") + "\n\n" + MAINT[state.transduction];
   navigator.clipboard.writeText(txt).then(()=>alert("Workflow copied to clipboard."),
