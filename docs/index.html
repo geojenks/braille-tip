@@ -106,6 +106,8 @@
   .opt:hover{border-color:#cfcfcf}
   .opt .ol{font-weight:700;display:block}
   .opt .od{color:var(--muted);font-size:12px}
+  .opt-skip{border:2px dashed var(--bCol);border-radius:9px;padding:9px 11px;background:#eef3fc;font-size:13px;color:#27508f}
+  .opt-skip .unexplored{display:block;margin-top:4px;color:#8a5a00;font-style:italic}
   .opt.sel[data-side="A"]{border-color:var(--aCol);background:#fdf3ec;box-shadow:0 0 0 1px var(--aCol) inset}
   .opt.sel[data-side="B"]{border-color:var(--bCol);background:#eef3fc;box-shadow:0 0 0 1px var(--bCol) inset}
   .cfg-out{padding:16px 22px 22px;background:#fcfcfd}
@@ -225,6 +227,9 @@
       <tr><td>4</td><td><b>Tubing attach</b></td><td class="a">Printed barbs</td><td class="b">Threaded insert + push-fit coupler</td></tr>
       <tr><td>5</td><td><b>Filling</b></td><td class="a">Back-fill interface, then top up tubes</td><td class="b">Direct small-syringe (if small enough)</td></tr>
     </table>
+    <p style="font-size:13px;color:var(--muted)"><b>One dependency:</b> if you <b>direct-print the tip (Fork&nbsp;2B)</b>, the
+    printed channels act as the tubing, so <b>Fork&nbsp;4 is skipped</b> and you fill the channels directly. Proven for
+    capacitance; "printed tubing" for optical is unexplored.</p>
     <div class="note"><b>Key fact:</b> the camera never images the silicone tip — it films a <b>downstream length of
     transparent tubing</b>. Whether the tip is clear or opaque black makes no difference to either transduction.</div>
   </div>
@@ -331,15 +336,19 @@
         <figcaption>Directly-printed (opaque) tip with its clear resin backing.</figcaption></figure>
       <div class="note"><b>Trade-off:</b> direct printing skips moulding and is fast/repeatable at small scale. Tip opacity
       does <b>not</b> affect transduction (the camera films downstream tubing, not the tip). <b>But</b> you <b>can't see
-      inside an opaque tip</b>, so some steps — e.g. <b>filling the cavities — become a bit of a shoot-and-hope</b>.</div>
+      inside an opaque tip</b>, so some steps — e.g. <b>filling the cavities — become a bit of a shoot-and-hope</b>. <b>Bonus:</b> the printed channels can <b>double as the tubing</b>, so Step&nbsp;4 is skipped — proven for capacitance; "printed tubing" for optical is unexplored.</div>
     </div>
   </div>
 </section>
 
 <!-- STEP 4 TUBING -->
-<section class="step">
+<section class="step" data-skip-fork="tip" data-skip-side="B">
   <div class="step-head"><div class="step-num">4</div><h2>Attach the tubing <span style="font-size:14px;color:var(--muted)">— Fork 4</span></h2></div>
   <div class="step-body">
+    <div class="note"><b>Direct-printed the tip (Fork 2B)? You can skip this whole step.</b> The printed resin channels
+    <b>are</b> your tubing — nothing to fit or couple; you fill them directly (Step 5). This is proven for the capacitive
+    merge (Step 6). Doing the same for the <b>optical</b> readout — "<b>printed tubing</b>" — is an <b>unexplored but
+    promising</b> path. The two methods below apply when you <b>cast</b> the tip (Fork 2A).</div>
     <div class="forkblock" data-fork="tubing" data-side="A">
       <h3><span class="fork forkA">Fork 4A</span>Printed barbs</h3>
       <p>Slide elastomeric tubing onto each barbed shaft under the base. <b>Ensure enough spacing between barbs for the
@@ -549,7 +558,15 @@ const ORDER = ["solid","tip","tubing","filling","transduction"];
 const state = { transduction:"A", tip:"A", solid:"A", tubing:"A", filling:"A" };
 
 function render(){
-  document.getElementById("flow").innerHTML = FORKS.map((f,i)=>`
+  document.getElementById("flow").innerHTML = FORKS.map((f,i)=>{
+    if(f.id==='tubing' && state.tip==='B'){
+      return `
+    <div class="node">
+      <div class="q"><span class="n">${i+1}</span>${f.q}</div>
+      <div class="opt-skip">Skipped — your <b>direct-printed channels are the tubing</b>.${state.transduction==='A' ? '<span class="unexplored">Optical via printed channels ("printed tubing") is unexplored.</span>' : ''}</div>
+    </div>`;
+    }
+    return `
     <div class="node">
       <div class="q"><span class="n">${i+1}</span>${f.q}</div>
       <div class="opts">
@@ -559,12 +576,17 @@ function render(){
                     <span class="ol">${o.label}</span><span class="od">${o.desc}</span></div>`;
         }).join("")}
       </div>
-    </div>`).join("");
+    </div>`;
+  }).join("");
   document.getElementById("recipe").innerHTML = ORDER.map(id=>{
+    if(id==='tubing' && state.tip==='B'){
+      return `<li><b>Tubing — not needed</b><span class="tagline">Your direct-printed channels act as the tubing; nothing to fit or couple, fill them directly.${state.transduction==='A' ? ' (Optical via printed channels is unexplored.)' : ''}</span></li>`;
+    }
     const f = FORKS.find(x=>x.id===id); const o = f[state[id]];
     return `<li><b>${o.recipe.title}</b><span class="tagline">${o.recipe.body}</span></li>`;
   }).join("");
   document.getElementById("chips").innerHTML = FORKS.map(f=>{
+    if(f.id==='tubing' && state.tip==='B') return `<span class="chip B">Tubing: printed channels (skipped)</span>`;
     const side=state[f.id]; return `<span class="chip ${side}">${f.q}: ${f[side].label}</span>`;
   }).join("");
   document.getElementById("maint").textContent = MAINT[state.transduction];
@@ -590,9 +612,17 @@ function applyFilter(){
     const f = el.dataset.fork, s = el.dataset.side;
     el.style.display = (on && f && state[f] !== s) ? 'none' : '';
   });
+  // dependency: skip an element entirely when a given fork is on a given side
+  document.querySelectorAll('[data-skip-fork]').forEach(el=>{
+    el.style.display = (on && state[el.dataset.skipFork] === el.dataset.skipSide) ? 'none' : '';
+  });
 }
 function copyRecipe(){
-  const lines = ORDER.map((id,i)=>{ const f=FORKS.find(x=>x.id===id); const o=f[state[id]];
+  const lines = ORDER.map((id,i)=>{
+    if(id==='tubing' && state.tip==='B'){
+      return `${i+1}. Tubing — not needed\n   Direct-printed channels act as the tubing; nothing to fit or couple.${state.transduction==='A' ? ' (Optical via printed channels is unexplored.)' : ''}`;
+    }
+    const f=FORKS.find(x=>x.id===id); const o=f[state[id]];
     return `${i+1}. ${o.recipe.title}\n   ${o.recipe.body}`; });
   const head = "MY BRAILLE-TIP BUILD\n" + FORKS.map(f=>`• ${f.q}: ${f[state[f.id]].label}`).join("\n");
   const txt = head + "\n\nWORKFLOW:\n" + lines.join("\n") + "\n\n" + MAINT[state.transduction];
