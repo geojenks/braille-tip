@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BraillePen — Build Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#1a1a1a; --muted:#6b6b6b; --line:#e6e6e6; --bg:#fafafa;
+    --orange:#f47321; --orange-d:#d65f15;
+    --need:#fff7e6; --need-b:#f0a500; --have:#eefaf0; --have-b:#34a853;
+    --aCol:#d65f15; --bCol:#27508f;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:"Inter",-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+       color:var(--ink);background:var(--bg);line-height:1.62;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+  a{color:var(--orange-d)}
+  header.bar{background:#fff;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:20}
+  header.bar .in{max-width:1040px;margin:0 auto;padding:10px 20px;display:flex;align-items:center;gap:14px}
+  .logo{font-weight:800;color:var(--orange);font-size:20px;letter-spacing:.5px}
+  .logo span{color:var(--ink)}
+  .bar nav{margin-left:auto;display:flex;gap:18px;font-size:14px;color:var(--muted)}
+  .wrap{max-width:1040px;margin:0 auto;padding:0 20px}
+  .hero{background:linear-gradient(180deg,#ffffff 0%,#fff7f1 100%);border-bottom:1px solid var(--line);padding:40px 0 30px}
+  .hero h1{font-size:36px;line-height:1.15;margin:0 0 10px;letter-spacing:-.4px}
+  .hero .by{color:var(--muted);font-size:15px;margin-bottom:18px}
+  .hero .by b{color:var(--ink)}
+  .hero-img{width:100%;max-height:440px;object-fit:cover;border-radius:10px;border:1px solid var(--line)}
+  .pills{display:flex;flex-wrap:wrap;gap:8px;margin:18px 0 0}
+  .pill{background:#fff;border:1px solid var(--line);border-radius:999px;padding:5px 13px;font-size:13px;color:var(--muted)}
+  .pill b{color:var(--ink)}
+  .hero-links{margin-top:16px;font-size:13.5px;display:flex;flex-wrap:wrap;gap:6px 16px;align-items:center;color:var(--muted)}
+  .hero-links a{color:var(--orange-d);text-decoration:none;border-bottom:1px solid #f0c9ad;white-space:nowrap}
+  .hero-links a:hover{border-color:var(--orange-d)}
+  .hero-links .pp{font-weight:700;color:var(--ink)}
+  section.step{background:#fff;border:1px solid var(--line);border-radius:12px;margin:22px 0;overflow:hidden;box-shadow:0 1px 2px rgba(0,0,0,.03)}
+  .step-head{display:flex;align-items:center;gap:14px;padding:16px 22px;border-bottom:1px solid var(--line);background:linear-gradient(#fff,#fcfcfc)}
+  .step-num{flex:0 0 auto;width:38px;height:38px;border-radius:9px;background:var(--orange);color:#fff;
+            font-weight:800;display:flex;align-items:center;justify-content:center;font-size:17px}
+  .step-head h2{margin:0;font-size:21px}
+  .step-body{padding:18px 22px 22px}
+  .step-body h3{font-size:16px;margin:22px 0 6px}
+  .step-body p,.step-body li{font-size:15.5px}
+  ul{padding-left:20px}
+  .intro-lead{font-size:17px;color:#333}
+  .fork{display:inline-block;font-size:12px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;
+        padding:2px 9px;border-radius:5px;margin-right:8px;vertical-align:middle}
+  .forkA{background:#fdece3;color:var(--aCol)}
+  .forkB{background:#e6eefc;color:var(--bCol)}
+  .imgrow{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin:16px 0}
+  figure{margin:0}
+  figure img,figure video{width:100%;border-radius:9px;border:1px solid var(--line);display:block}
+  figure img{background:#fff;max-height:300px;object-fit:contain;cursor:zoom-in;transition:filter .12s,box-shadow .12s}
+  figure img:hover{filter:brightness(.97);box-shadow:0 3px 14px rgba(0,0,0,.10)}
+  figure video{background:#000;max-height:430px;object-fit:contain}
+  figure.lead img{max-height:470px}
+  figure.big img{max-height:400px}
+  figure.compact{max-width:560px;margin-left:auto;margin-right:auto}
+  figcaption{font-size:12.5px;color:var(--muted);margin-top:7px;line-height:1.5}
+  /* lightbox */
+  #lb{position:fixed;inset:0;background:rgba(22,17,12,.93);display:none;z-index:100;
+      align-items:center;justify-content:center;flex-direction:column;padding:30px;cursor:zoom-out}
+  #lb.open{display:flex}
+  #lb img{max-width:94vw;max-height:84vh;border-radius:9px;box-shadow:0 14px 50px rgba(0,0,0,.55);cursor:default}
+  #lb .cap{color:#ededed;font-size:14px;max-width:780px;text-align:center;margin-top:14px;line-height:1.55}
+  #lb .x{position:absolute;top:16px;right:24px;color:#fff;font-size:34px;cursor:pointer;opacity:.85;line-height:1;font-weight:300}
+  #lb .x:hover{opacity:1}
+  .have-tag{display:inline-block;font-size:10.5px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;
+            color:#1d7a36;background:var(--have);border:1px solid var(--have-b);border-radius:5px;padding:1px 6px;margin-right:6px}
+  .vid-tag{color:#7a3fa0;background:#f3ebfb;border-color:#c9a8e6}
+  table{border-collapse:collapse;width:100%;font-size:14px;margin:8px 0}
+  th,td{border:1px solid var(--line);padding:9px 11px;text-align:left;vertical-align:top}
+  th{background:#faf6f2}
+  td.a{background:#fffaf6} td.b{background:#f7f9ff}
+  .note{border-left:4px solid var(--orange);background:#fff8f3;padding:12px 16px;border-radius:0 8px 8px 0;margin:16px 0;font-size:14.5px}
+  .warn{border-left:4px solid var(--need-b);background:var(--need);padding:12px 16px;border-radius:0 8px 8px 0;margin:16px 0;font-size:14.5px}
+  .status{border-left:4px solid var(--aCol);background:#fdf0e7;padding:12px 16px;border-radius:0 8px 8px 0;margin:16px 0;font-size:14.5px}
+  code{background:#f1f1f1;padding:1px 5px;border-radius:4px;font-size:13px}
+  footer{color:var(--muted);font-size:13px;text-align:center;padding:30px 20px 50px}
+  footer a{color:var(--orange-d)}
+  .toc{columns:2;font-size:14px;gap:30px}
+  @media(max-width:640px){.toc{columns:1}.hero h1{font-size:27px}.cfg-grid{grid-template-columns:1fr!important}}
+
+  /* ---------- CONFIGURATOR ---------- */
+  .cfg{background:linear-gradient(180deg,#fffdfb,#fff);border:1px solid var(--line);border-radius:12px;margin:22px 0;overflow:hidden}
+  .cfg-head{padding:16px 22px;border-bottom:1px solid var(--line);background:linear-gradient(#fff,#fcfcfc)}
+  .cfg-head h2{margin:0 0 3px;font-size:21px}
+  .cfg-head p{margin:0;color:var(--muted);font-size:14px}
+  .cfg-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:0}
+  .cfg-flow{padding:14px 22px 22px;border-right:1px solid var(--line)}
+  .presets{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0 14px}
+  .presets button{font:inherit;font-size:13px;cursor:pointer;border:1px solid var(--line);background:#fff;
+                  padding:6px 12px;border-radius:7px}
+  .presets button:hover{border-color:var(--orange)}
+  .node{position:relative;padding:0 0 4px 0;margin:0 0 4px 0}
+  .node:not(:last-child)::after{content:"";position:absolute;left:18px;bottom:-12px;width:2px;height:14px;background:var(--line)}
+  .node .q{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);margin:10px 0 6px}
+  .node .q .n{display:inline-block;width:20px;height:20px;line-height:20px;text-align:center;border-radius:50%;
+              background:var(--orange);color:#fff;font-size:12px;margin-right:8px}
+  .opts{display:flex;gap:8px}
+  .opt{flex:1;cursor:pointer;border:2px solid var(--line);border-radius:9px;padding:8px 11px;background:#fff;
+       font-size:13.5px;transition:.12s;user-select:none}
+  .opt:hover{border-color:#cfcfcf}
+  .opt .ol{font-weight:700;display:block}
+  .opt .od{color:var(--muted);font-size:12px}
+  .opt.sel[data-side="A"]{border-color:var(--aCol);background:#fdf3ec;box-shadow:0 0 0 1px var(--aCol) inset}
+  .opt.sel[data-side="B"]{border-color:var(--bCol);background:#eef3fc;box-shadow:0 0 0 1px var(--bCol) inset}
+  .cfg-out{padding:16px 22px 22px;background:#fcfcfd}
+  .cfg-out h3{margin:4px 0 8px;font-size:15px}
+  .readfirst{font-size:13px;background:#fff8f3;border:1px solid #f6d9c4;border-left:4px solid var(--orange);
+             border-radius:0 7px 7px 0;padding:9px 12px;margin:0 0 12px;color:#7a4a25}
+  #recipe{list-style:none;padding:0;margin:0;counter-reset:r}
+  #recipe li{position:relative;padding:9px 0 9px 34px;border-bottom:1px dashed var(--line);font-size:13.7px}
+  #recipe li::before{counter-increment:r;content:counter(r);position:absolute;left:0;top:9px;width:22px;height:22px;
+                     line-height:22px;text-align:center;border-radius:50%;font-size:12px;font-weight:700;color:#fff;background:var(--orange)}
+  #recipe li b{display:block}
+  #recipe li .tagline{color:var(--muted);font-size:12.5px}
+  .chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+  .chip{font-size:11.5px;padding:3px 9px;border-radius:999px;font-weight:600}
+  .chip.A{background:#fdece3;color:var(--aCol)} .chip.B{background:#e6eefc;color:var(--bCol)}
+  .cfg-actions{margin-top:14px;display:flex;gap:8px;flex-wrap:wrap}
+  .cfg-actions button{font:inherit;font-size:13px;cursor:pointer;border:1px solid var(--line);background:#fff;padding:7px 13px;border-radius:7px}
+  .cfg-actions button:hover{border-color:var(--orange)}
+  #viewBtn.on{background:var(--orange);color:#fff;border-color:var(--orange)}
+  .maint{margin-top:12px;font-size:12.7px;color:#555;background:#fff;border:1px solid var(--line);border-radius:8px;padding:10px 12px}
+  #filterBanner{display:none;position:sticky;top:53px;z-index:15;background:#fff4ea;border:1px solid var(--need-b);
+                color:#8a5a00;border-radius:9px;margin:14px 0;padding:9px 14px;font-size:13.5px;align-items:center;gap:12px}
+  #filterBanner b{color:#6b4500}
+  #filterBanner button{margin-left:auto;font:inherit;font-size:12.5px;cursor:pointer;border:1px solid var(--need-b);
+                       background:#fff;color:#8a5a00;padding:5px 11px;border-radius:6px}
+  body.filtered #filterBanner{display:flex}
+</style>
+</head>
+<body>
+
+<header class="bar"><div class="in">
+  <div class="logo">BRAILLE<span>PEN</span></div>
+  <nav><span>Project</span><span>Configurator</span><span>Steps</span><span>Files</span></nav>
+</div></header>
+
+<!-- HERO -->
+<div class="hero"><div class="wrap">
+  <h1>BraillePen: build a compact soft sensor that reads Braille</h1>
+  <div class="by">by <b>George Jenkinson</b> · Bristol Robotics Laboratory · build &amp; hand-off guide</div>
+  <img class="hero-img" src="instructables/tip_and_braille.jpeg" alt="Braille-tip on embossed Braille">
+  <div class="pills">
+    <span class="pill"><b>Difficulty:</b> Intermediate→Advanced</span>
+    <span class="pill"><b>For:</b> hobbyist / MSc / early PhD</span>
+    <span class="pill"><b>Forks:</b> Optical or Liquid-metal</span>
+    <span class="pill"><b>Fab:</b> SLA / FDM + silicone</span>
+  </div>
+  <div class="hero-links">
+    <span class="pp">This is a build walkthrough.</span> For project background &amp; full details:
+    <a href="https://research-information.bris.ac.uk/en/projects/braillepen-a-braille-reading-device-to-aid-braille-literacy-skill/" target="_blank" rel="noopener">Project page ↗</a>
+    <a href="https://ieeexplore.ieee.org/document/10719951" target="_blank" rel="noopener">Braille-tip paper ↗</a>
+    <a href="https://ieeexplore.ieee.org/document/10955243" target="_blank" rel="noopener">Coil-Tac paper ↗</a>
+  </div>
+</div></div>
+
+<div class="wrap">
+
+<!-- ================= CONFIGURATOR ================= -->
+<div class="cfg" id="configurator">
+  <div class="cfg-head">
+    <h2>🛠️ Build Configurator — mix &amp; match</h2>
+    <p>Pick one option at each step. The five choices are largely independent — <b>any combination is buildable</b>.</p>
+  </div>
+  <div class="cfg-grid">
+    <div class="cfg-flow">
+      <div class="presets">
+        <span style="font-size:13px;color:var(--muted);align-self:center;margin-right:2px">Quick start:</span>
+        <button onclick="preset('optical')">⬤ Optical example</button>
+        <button onclick="preset('capacitive')">⬤ Capacitive (Coil-Tac) example</button>
+      </div>
+      <div id="flow"></div>
+    </div>
+    <div class="cfg-out">
+      <div class="readfirst">📖 <b>Read through all the options first</b>, then decide which single production workflow you'll actually build.</div>
+      <h3>📋 Your workflow</h3>
+      <ol id="recipe"></ol>
+      <div class="chips" id="chips"></div>
+      <div class="maint" id="maint"></div>
+      <div class="cfg-actions">
+        <button id="viewBtn" onclick="toggleFilter()">👁 View this workflow</button>
+        <button onclick="copyRecipe()">Copy as text</button>
+        <button onclick="window.print()">Print / save PDF</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="filterBanner">
+  <span>🔎 <b>Filtered view</b> — showing only the steps for your selected workflow. Other options are hidden.</span>
+  <button onclick="toggleFilter()">Show all options</button>
+</div>
+
+<!-- INTRO -->
+<section class="step">
+  <div class="step-head"><div class="step-num">0</div><h2>What you're building</h2></div>
+  <div class="step-body">
+    <p class="intro-lead">Braille-tip is a compact (11&nbsp;mm Ø hex) soft tactile sensor that mounts on a pen and reads
+    Braille as you sweep it left-to-right. A soft silicone membrane carries <b>19 taxels</b> (1&nbsp;mm Ø, on a 2.5&nbsp;mm
+    grid matching Braille dot spacing). Each taxel is hydraulically coupled down a fluid channel; pressing a taxel
+    displaces fluid, read out either <b>optically</b> (dyed water + camera) or <b>capacitively</b> (liquid metal +
+    an outer conductive plate — the Coil-Tac mechanism).</p>
+    <figure class="compact"><img src="instructables/comparison_photo.jpeg" alt="three forms of the device">
+      <figcaption>Three forms of the device. <b>Left:</b> a large, fully self-contained unit with an internal optical
+      shaft and Raspberry&nbsp;Pi camera. <b>Centre:</b> a larger FDM/domed silicone interface. <b>Right:</b> the small
+      resin Braille-tip. Miniaturising is a build challenge, not a conceptual one (see Step&nbsp;9).</figcaption></figure>
+    <div class="imgrow">
+      <figure><img src="instructables/scale_example.png" alt="scale"><figcaption>How small Braille-tip is.</figcaption></figure>
+      <figure><img src="instructables/1.jpeg" alt="reading braille"><figcaption>Reading embossed Braille by hand, ~1 word/s.</figcaption></figure>
+    </div>
+    <h3>The forks (two example flows, side by side)</h3>
+    <p>The columns are just two sensible recipes — <b>not</b> a fixed pairing. Any combination works; only <b>Fork&nbsp;1
+    (transduction)</b> cascades, setting the liquid, readout and maintenance.</p>
+    <table>
+      <tr><th>#</th><th>Decision</th><th>Optical example</th><th>Capacitive example</th></tr>
+      <tr><td>1</td><td><b>Transduction</b></td><td class="a">Optical: dyed water + camera + CV</td><td class="b">Capacitive: liquid metal + outer plate + voltage reader</td></tr>
+      <tr><td>2</td><td><b>Tip fabrication</b></td><td class="a">Cast Ecoflex in a mould</td><td class="b">Direct-print silicone (Form 3, opaque black)</td></tr>
+      <tr><td>3</td><td><b>Solid parts</b></td><td class="a"><b>FDM</b> — easier casting, larger builds</td><td class="b"><b>Resin/SLA</b> — precise, small builds</td></tr>
+      <tr><td>4</td><td><b>Tubing attach</b></td><td class="a">Printed barbs</td><td class="b">Threaded insert + push-fit coupler</td></tr>
+      <tr><td>5</td><td><b>Filling</b></td><td class="a">Back-fill interface, then top up tubes</td><td class="b">Direct small-syringe (if small enough)</td></tr>
+    </table>
+    <div class="note"><b>Key fact:</b> the camera never images the silicone tip — it films a <b>downstream length of
+    transparent tubing</b>. Whether the tip is clear or opaque black makes no difference to either transduction.</div>
+  </div>
+</section>
+
+<!-- MATERIALS -->
+<section class="step">
+  <div class="step-head"><div class="step-num">1</div><h2>Tools &amp; materials</h2></div>
+  <div class="step-body">
+    <h3>Common to all builds</h3>
+    <ul>
+      <li>Host <b>felt-tip pen</b> (felt + tip removed; barrel carries the tubing). You can also <b>print the pen
+        shaft</b> yourself — handy for concealing electronics or even a camera (as in the left-hand unit above).</li>
+      <li>Something to read: embossed Braille card works, but isn't required — better, <b>3D-print your own Braille characters</b> so you can lay out arbitrary letters and words for testing.</li>
+      <li>Fine syringes + blunt needles; hobby knife; tweezers.</li>
+    </ul>
+    <h3>Printers <span style="font-weight:400;color:var(--muted)">— either printer works for either build</span></h3>
+    <ul>
+      <li class="forkblock" data-fork="solid" data-side="A"><b>FDM</b> — project used a <b>Bambu Lab</b>, but any works. Makes casting easier; preferred for larger builds. No UV/IPA post-processing.</li>
+      <li class="forkblock" data-fork="solid" data-side="B"><b>Resin/SLA</b> — project used a <b>Formlabs Form 3</b>. Much more precise; needs UV cure + IPA wash post-processing.</li>
+    </ul>
+    <div class="forkblock" data-fork="tip" data-side="A">
+      <h3><span class="fork forkA">Fork 2A</span>Cast silicone tip</h3>
+      <ul><li><b>Ecoflex 00-30</b> (Smooth-On) platinum-cure silicone — a good middle ground.</li>
+          <li><i>Note:</i> <b>Ecoflex 00-10 cures tacky</b>; you can fix it with a thin film of another silicone, but it's
+              fiddly. <b>00-30</b> avoids the bother.</li>
+          <li>4-part printed mould — CAD in the <a href="https://github.com/geojenks/braille-tip" target="_blank" rel="noopener">braille-tip repo</a> (<code>Fabrication/</code>).</li></ul>
+    </div>
+    <div class="forkblock" data-fork="tip" data-side="B">
+      <h3><span class="fork forkB">Fork 2B</span>Direct-print silicone tip</h3>
+      <ul><li>Silicone-capable printer (Form 3); tip comes out opaque black.</li>
+          <li>Clear-resin <b>backing</b> that plugs into the printed tip (Step 6).</li></ul>
+    </div>
+    <div class="forkblock" data-fork="transduction" data-side="A">
+      <h3><span class="fork forkA">Fork 1A</span>Optical transduction</h3>
+      <ul><li><b>Black food dye</b> (Sainsbury's) + water.</li>
+          <li>Thin transparent tubing. <b>Glass capillaries (0.6&nbsp;mm ID) aren't strictly necessary</b> — but the
+              <b>thinner the tubing, the stronger the signal</b> (1→0.6&nbsp;mm narrowing amplifies meniscus travel ×2.78).</li>
+          <li>A <b>camera</b> + edge-finding CV. A <b>smartphone camera is almost certainly good enough</b>.</li></ul>
+    </div>
+    <div class="forkblock" data-fork="transduction" data-side="B">
+      <h3><span class="fork forkB">Fork 1B</span>Capacitive transduction (Coil-Tac)</h3>
+      <ul><li><b>Liquid metal</b> Ga:In:Sn 69:22:9 (EGaIn) — e.g. Smart-elements GmbH.</li>
+          <li>Insulating channel for the LM — <b>PTFE or silicone tubing</b>. Diameter is arbitrary (it scales with your design); here it's <b>1&nbsp;mm ID / 2&nbsp;mm OD</b>.</li>
+          <li><b>Outer capacitive plate</b> (senses the moving liquid metal): any conductor. More LM works, but
+              <b>avoid LM where possible — it's corrosive</b>, so a <b>copper tube that slips around the insulated LM
+              channel is ideal</b>.</li>
+          <li><b>NaOH cap</b>: caustic soda + water (anti-oxidation; consumed quickly).</li>
+          <li><b>Capacitance readout</b> — either an <b>LCR meter</b> (more accurate), or a <b>voltage reader /
+              microcontroller</b> (project used an <b>Arduino Due</b>, 3.3&nbsp;V, + a <b>reference capacitor</b> ~15&nbsp;pF,
+              capacitors-in-series). The microcontroller is a nice substitute because it can read <b>many channels in
+              parallel</b>, but it's <b>less accurate</b>.</li>
+          <li><b>Grounding the LM:</b> a metal <b>push-fit coupling</b> (only if the build is big enough), otherwise a
+              <b>corrosion-resistant tungsten wire that dips into the liquid metal</b>.</li></ul>
+    </div>
+  </div>
+</section>
+
+<!-- STEP 2 PRINT -->
+<section class="step">
+  <div class="step-head"><div class="step-num">2</div><h2>Print the parts <span style="font-size:14px;color:var(--muted)">— Fork 3: FDM vs Resin</span></h2></div>
+  <div class="step-body">
+    <p>Either printer works for either build:</p>
+    <ul>
+      <li class="forkblock" data-fork="solid" data-side="A"><span class="fork forkA">FDM</span> <b>Bambu Lab / any</b> — cheaper, makes casting easier → preferred for <b>larger builds</b>. No UV/IPA post-processing.</li>
+      <li class="forkblock" data-fork="solid" data-side="B"><span class="fork forkB">Resin/SLA</span> <b>Form 3 / any</b> — much more <b>precise</b> → preferred for <b>small builds</b>.</li>
+    </ul>
+    <div class="forkblock" data-fork="solid" data-side="B">
+      <h3>Resin post-processing <span style="font-weight:400;color:var(--muted)">(resin only)</span></h3>
+      <p>Every resin print gets a <b>UV cure + IPA wash</b>. If silicone will later <b>cure against</b> the part, this must
+      be <b>VERY thorough</b> — <b>uncured resin inhibits platinum-cure silicone</b>. Repeat cure/wash cycles (~5× in the
+      paper) until silicone reliably sets against it.</p>
+    </div>
+    <h3>Assembly overview</h3>
+    <div class="imgrow">
+      <figure><img src="instructables/sketch_parts_exploded.png" alt="exploded barbed">
+        <figcaption><b>Barbed route.</b> Mould (grey), base with barbed shafts (red), and the finished hex tip with its flat elastomeric membrane.</figcaption></figure>
+      <figure><img src="instructables/sketch_parts_exploded_2.png" alt="exploded FDM coupler">
+        <figcaption><b>FDM + push-fit route.</b> a) PLA mould (extruder / base / basin), b) cast silicone tip with cavities, c) threaded inserts + push-fit tube couplers, d) channels filled with water/dye.</figcaption></figure>
+    </div>
+    <figure class="lead"><img src="instructables/sketch_fab_flow_process.png" alt="fabrication flow">
+      <figcaption>Fabrication flow: print → cure → wash → pour → extrude → cure.</figcaption></figure>
+  </div>
+</section>
+
+<!-- STEP 3 TIP -->
+<section class="step">
+  <div class="step-head"><div class="step-num">3</div><h2>Make the tactile tip <span style="font-size:14px;color:var(--muted)">— Fork 2</span></h2></div>
+  <div class="step-body">
+    <div class="forkblock" data-fork="tip" data-side="A">
+      <h3><span class="fork forkA">Fork 2A</span>Cast the silicone tip in a mould</h3>
+      <ol><li>Mix Ecoflex 00-30 per datasheet; degas if you can.</li>
+          <li>Pour into the (decontaminated, if resin) mould.</li>
+          <li>Place the sensor base on top and <b>extrude the silicone <u>out of</u> the taxel cavities</b>.</li>
+          <li><b>Cure at ~40–50&nbsp;°C</b> (don't use a normal oven — unreliable temperature will melt the plastic parts); demould.</li></ol>
+      <figure class="big" style="max-width:460px"><img src="instructables/taxel_face_closeup.png" alt="taxel face">
+        <figcaption>The membrane / taxel face after casting.</figcaption></figure>
+    </div>
+    <div class="forkblock" data-fork="tip" data-side="B">
+      <h3><span class="fork forkB">Fork 2B</span>Direct-print the silicone tip</h3>
+      <ol><li>Print the tip directly (opaque black silicone).</li>
+          <li>Print the clear-resin <b>backing</b> that plugs into it (Step 6).</li></ol>
+      <figure class="big" style="max-width:460px"><img src="instructables/printed_tip_and_backing.png" alt="printed tip and backing">
+        <figcaption>Directly-printed (opaque) tip with its clear resin backing.</figcaption></figure>
+      <div class="note"><b>Trade-off:</b> direct printing skips moulding and is fast/repeatable at small scale. Tip opacity
+      does <b>not</b> affect transduction (the camera films downstream tubing, not the tip). <b>But</b> you <b>can't see
+      inside an opaque tip</b>, so some steps — e.g. <b>filling the cavities — become a bit of a shoot-and-hope</b>.</div>
+    </div>
+  </div>
+</section>
+
+<!-- STEP 4 TUBING -->
+<section class="step">
+  <div class="step-head"><div class="step-num">4</div><h2>Attach the tubing <span style="font-size:14px;color:var(--muted)">— Fork 4</span></h2></div>
+  <div class="step-body">
+    <div class="forkblock" data-fork="tubing" data-side="A">
+      <h3><span class="fork forkA">Fork 4A</span>Printed barbs</h3>
+      <p>Slide elastomeric tubing onto each barbed shaft under the base. <b>Ensure enough spacing between barbs for the
+      tubing.</b> Fiddly at 19-channel density.</p>
+      <figure class="big" style="max-width:460px"><img src="instructables/tubing_barbs.png" alt="tubing on barbs">
+        <figcaption>Tubing on the printed barbed shafts.</figcaption></figure>
+    </div>
+    <div class="forkblock" data-fork="tubing" data-side="B">
+      <h3><span class="fork forkB">Fork 4B</span>Threaded insert + push-fit coupler</h3>
+      <p>Push a <b>threaded insert</b> into a plastic hole made <i>just slightly too small</i> for it, using a
+      <b>soldering iron</b> to heat-set it (e.g.
+      <a href="https://uk.rs-online.com/web/p/threaded-inserts/0278607" target="_blank" rel="noopener">RS threaded inserts</a>).
+      Then screw in a <b>threaded push-fit coupler</b> for the (silicone) tubing. Nice for liquid metal <b>if you have the
+      space</b>, but quite <b>large/expensive</b>.</p>
+      <figure class="big" style="max-width:460px"><img src="instructables/tubing_insert_coupler.png" alt="insert and coupler">
+        <figcaption>Heat-set threaded insert + push-fit coupler.</figcaption></figure>
+    </div>
+  </div>
+</section>
+
+<!-- STEP 5 FILL -->
+<section class="step">
+  <div class="step-head"><div class="step-num">5</div><h2>Fill with working fluid <span style="font-size:14px;color:var(--muted)">— Fork 5</span></h2></div>
+  <div class="step-body">
+    <div class="warn"><b>Air bubbles are the main failure mode</b> for both fluids — work slowly and tap them out.</div>
+    <ul>
+      <li class="forkblock" data-fork="filling" data-side="A"><span class="fork forkA">5A</span> <b>Back-fill then top up:</b> introduce liquid "behind" the tubing at the interface, fill the tubes most of the way, <b>then</b> attach.</li>
+      <li class="forkblock" data-fork="filling" data-side="B"><span class="fork forkB">5B</span> <b>Direct syringe:</b> if the assembly is small/accessible enough, inject directly with a fine syringe.</li>
+    </ul>
+    <div class="imgrow">
+      <figure><img src="instructables/filling_sequence.png" alt="filling">
+        <figcaption>Filling the channels.</figcaption></figure>
+      <figure><video src="instructables/press_demo.mp4" controls preload="metadata"></video>
+        <figcaption><span class="have-tag vid-tag">Video</span>A back-filled liquid-metal tip <b>before</b> couplers/tubing are added — the liquid metal "bulbs" out of the open channel ends. Once assembled, this is taken up as flow in the tubes.</figcaption></figure>
+    </div>
+  </div>
+</section>
+
+<!-- STEP 6 MERGED (capacitive only) -->
+<section class="step" data-fork="transduction" data-side="B">
+  <div class="step-head"><div class="step-num">6</div><h2>Merged device assembly (the Coil-Tac Braille-tip)</h2></div>
+  <div class="step-body">
+    <p>The proven merge: it looks like the original Braille-tip but uses liquid metal.</p>
+    <ol>
+      <li><b>Direct-print the tip</b> in opaque black silicone (Fork 2B).</li>
+      <li>Print a <b>clear resin backing</b> (decontaminated, Step 2) that <b>plugs directly into</b> the tip.</li>
+      <li>Per channel, place the <b>outer capacitive plate</b> — a <b>copper tube that slips around</b> the insulated LM channel (a coil if the channel must flex). <i>(This is the novel step, shown below.)</i></li>
+      <li><b>Back-fill the liquid metal from behind</b> the channel, then <b>seal it off</b>; ground it with tungsten wire (or a push-fit coupler if large enough).</li>
+      <li>Read out per Step 7B.</li>
+    </ol>
+    <div class="imgrow">
+      <figure><img src="instructables/merged_assembly.jpeg" alt="copper plate into channel">
+        <figcaption>The <b>novel step 3</b>: a copper tube (the outer capacitive plate) inserted around a channel of the clear-backed tip. <i>(Grounding the liquid metal with a tungsten wire dipped into the channel isn't pictured, but is easy to picture.)</i></figcaption></figure>
+      <figure><img src="instructables/nicely_contained_LM.jpeg" alt="LM in 7 channels">
+        <figcaption>Liquid metal cleanly contained in all <b>7 channels</b> of a directly-printed tip, submerged in NaOH solution.</figcaption></figure>
+    </div>
+    <figure><video src="instructables/Imissable_LM.mp4" controls preload="metadata"></video>
+      <figcaption><span class="have-tag vid-tag">Video</span>How liquid metal should behave in solution — <b>immiscible, like oil in water</b> — holding its form within the channels.</figcaption></figure>
+    <div class="warn"><b>⚠️ NaOH is consumed fast:</b> the ions in the NaOH cap are used up quickly. Mitigations:
+    <b>work fast</b>, <b>evacuate the air and replace with argon</b>, or use <b>another liquid conductor</b>
+    (NaOH itself still works reasonably well).</div>
+    <div class="status"><b>Status note:</b> connections are very fiddly at this scale. The merge was <b>demonstrated over a
+    few taxels, not all 19 at once</b> — completing the full-array integration is the obvious next step.</div>
+  </div>
+</section>
+
+<!-- STEP 7 READOUT -->
+<section class="step">
+  <div class="step-head"><div class="step-num">7</div><h2>Read-out &amp; signal processing <span style="font-size:14px;color:var(--muted)">— Fork 1</span></h2></div>
+  <div class="step-body">
+    <div class="forkblock" data-fork="transduction" data-side="A">
+      <h3><span class="fork forkA">Fork 1A</span>Optical (dyed water + camera)</h3>
+      <p><b>Hardware.</b> A camera images a <b>downstream length of transparent tubing</b> (not the tip). I used glass
+      capillaries to keep it thin and inflexible; <b>transparent tubing will still work</b>.</p>
+      <p><b>Software</b> (separate, and ripe for improvement). The current pipeline normalises each channel 0→1, thresholds
+      to binarise dot/no-dot (I used 0.4 with smoothing decay 4 — <i>my</i> specific settings), then segments letters +
+      dictionary-looks-up → text/audio. <b>This software is very inefficient and should be changed / improved upon.</b></p>
+      <div class="note"><b>Hand-off recommendation:</b> don't hand-write the CV. Record a <b>video first</b>, have an LLM
+      scaffold the edge-finding + thresholding from the recording; go <b>live/real-time</b> only if needed. Treat the GitHub
+      MATLAB as a reference, not a dependency.</div>
+      <div class="imgrow">
+        <figure><img src="instructables/to_binary.png" alt="signal to binary"><figcaption>Continuous signal thresholded into binary dot/no-dot.</figcaption></figure>
+        <figure><img src="instructables/Braille_result.png" alt="reading result"><figcaption>Reading output vs ground truth.</figcaption></figure>
+      </div>
+    </div>
+    <div class="forkblock" data-fork="transduction" data-side="B">
+      <h3><span class="fork forkB">Fork 1B</span>Capacitive (Coil-Tac)</h3>
+      <ul>
+        <li>Measure capacitance with an <b>LCR meter</b> (most accurate), or via <b>capacitors-in-series</b> on a <b>voltage reader / microcontroller</b> (project: Arduino Due, 3.3 V, reference cap ~15 pF — expect to tune). The microcontroller route trades accuracy for reading <b>many channels in parallel</b>.</li>
+        <li>Liquid-metal column length ↔ capacitance; calibrate against known fixed capacitors.</li>
+        <li>Scale per-channel by adding outer plates + reader channels; mechanism is low-power.</li>
+      </ul>
+      <figure><video src="instructables/touch_sensitive_LM.mp4" controls preload="metadata"></video>
+        <figcaption><span class="have-tag vid-tag">Video</span>Pressing the membrane moves the liquid metal along the channels. Put a copper tube around the channel (Step&nbsp;6) and this movement reads out as a change in capacitance.</figcaption></figure>
+      <div class="imgrow">
+        <figure><img src="instructables/arduino_wiring.jpeg" alt="arduino wiring"><figcaption>The capacitance read-out wiring. The tube holding the liquid metal is inserted into the <b>axial hollow of the coiled copper</b> shown here.</figcaption></figure>
+        <figure><img src="instructables/Cap_calibration_bottom.png" alt="calibration"><figcaption>Capacitance calibration against known fixed capacitors.</figcaption></figure>
+        <figure><img src="instructables/model_vs_exp.png" alt="model vs experiment"><figcaption>Model vs experiment (Coil-Tac).</figcaption></figure>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STEP 8 MAINTENANCE -->
+<section class="step">
+  <div class="step-head"><div class="step-num">8</div><h2>Maintenance &amp; known failure modes</h2></div>
+  <div class="step-body">
+    <div class="forkblock" data-fork="transduction" data-side="A">
+      <h3><span class="fork forkA">Fork 1A</span>Dyed water upkeep</h3>
+      <ul><li><b>Black food dye (Sainsbury's)</b> lasts ~days to a week, then goes <b>gummy</b> → flush and refill.</li>
+          <li><b>Worth designing a flush system</b> so refreshing is fast.</li></ul>
+    </div>
+    <div class="forkblock" data-fork="transduction" data-side="B">
+      <h3><span class="fork forkB">Fork 1B</span>Liquid metal upkeep</h3>
+      <ul>
+        <li>Needs the <b>NaOH cap</b>; it's <b>consumed quickly and must be replenished</b> (see Step 6 mitigations: argon, work fast, alternative conductor).</li>
+        <li>Oxide skin changes LM behaviour — keep it capped and submerged (as in Step 6); calibrate with a small LM overhang into the static section to null the NaOH/fringing contribution.</li>
+      </ul>
+    </div>
+    <h3>General</h3>
+    <ul><li>Bubbles in channels = bad signal — re-fill (Step 5).</li>
+        <li>The copper outer plate must hold its geometry; if it bends, switch to a coil.</li></ul>
+  </div>
+</section>
+
+<!-- STEP 9 NEXT -->
+<section class="step">
+  <div class="step-head"><div class="step-num">9</div><h2>Next steps for whoever picks this up</h2></div>
+  <div class="step-body">
+    <ul>
+      <li><b>Work with scaled-up Braille letters first.</b> Scaling <i>down</i> is a manufacturing/building challenge that
+        is <b>easy to solve with better equipment</b> and isn't the interesting part. Miniaturising is theoretically
+        straightforward, practically frustrating, and not interesting — though it <i>is</i> the final step to making the
+        device usable.</li>
+      <li><b>A printable Braille test set</b> — a library of independent Braille characters that snap into arbitrary words and lines for systematic testing, rather than relying on embossed card.</li>
+      <li>Integrate the liquid-metal readout across <b>all 19 taxels</b> (only a few proven so far).</li>
+      <li><b>Improved (ML?) algorithm for bump recognition.</b></li>
+      <li>Battery-powered, pocket-sized build.</li>
+      <li>Orientation-robust algorithm (don't require a straight perpendicular sweep).</li>
+      <li>Roller/guide to keep the tip parallel to the page; short user studies with Braille learners.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- APPENDIX -->
+<section class="step">
+  <div class="step-head"><div class="step-num">A</div><h2>Appendix — key numbers</h2></div>
+  <div class="step-body">
+    <div class="toc">
+      <ul>
+        <li>Tip: 11&nbsp;mm hex OD; 19 taxels, 1&nbsp;mm Ø, 2.5&nbsp;mm centres.</li>
+        <li>Optical narrowing 1→0.6&nbsp;mm ID → ×2.78 meniscus amplification; dot raises membrane ~0.48&nbsp;mm.</li>
+        <li>Optical (my settings): smoothing decay 4; normalise 0→1; threshold 0.4; ~84.8% hand accuracy.</li>
+        <li>Liquid metal: Ga:In:Sn 69:22:9; PTFE 1&nbsp;mm ID / 2&nbsp;mm OD; copper outer plate; coil pitch ~1.5&nbsp;mm.</li>
+        <li>Readout: Arduino Due 3.3&nbsp;V, ~15&nbsp;pF reference; ε_r ≈ 2.4.</li>
+        <li>Coil-Tac demo (7-ch dome): contact location RMSE 0.23&nbsp;mm.</li>
+      </ul>
+    </div>
+    <p style="font-size:13px;color:var(--muted)">Full data &amp; code: github.com/geojenks/braille-tip ·
+    github.com/geojenks/coiltac</p>
+  </div>
+</section>
+
+</div>
+
+<footer>
+  BraillePen build guide · Bristol Robotics Laboratory<br>
+  <a href="https://research-information.bris.ac.uk/en/projects/braillepen-a-braille-reading-device-to-aid-braille-literacy-skill/" target="_blank" rel="noopener">Project page</a> ·
+  <a href="https://ieeexplore.ieee.org/document/10719951" target="_blank" rel="noopener">Braille-tip paper</a> ·
+  <a href="https://ieeexplore.ieee.org/document/10955243" target="_blank" rel="noopener">Coil-Tac paper</a> ·
+  <a href="https://github.com/geojenks/braille-tip" target="_blank" rel="noopener">Code &amp; CAD</a>
+</footer>
+
+<script>
+const FORKS = [
+  { id:"transduction", q:"Transduction method",
+    A:{label:"Optical", desc:"dyed water + camera",
+       recipe:{title:"Read out optically", body:"A camera films a downstream length of transparent tubing; software thresholds the meniscus movement into dots. (Software is inefficient — improve it.)"}},
+    B:{label:"Capacitive", desc:"liquid metal + Coil-Tac",
+       recipe:{title:"Read out capacitively (Coil-Tac)", body:"Liquid metal moves past an outer copper plate; a voltage reader (e.g. Arduino Due) measures capacitance change via capacitors-in-series with a ~15 pF reference."}} },
+  { id:"tip", q:"Tip fabrication",
+    A:{label:"Cast", desc:"Ecoflex in a mould",
+       recipe:{title:"Cast the silicone tip", body:"Mix Ecoflex 00-30, pour into the mould, press the base on, extrude silicone OUT of the taxel cavities, cure at ~40–50 °C, demould."}},
+    B:{label:"Direct-print", desc:"Form 3 silicone",
+       recipe:{title:"Direct-print the silicone tip", body:"Print the tip directly (opaque black) + a clear resin backing that plugs in. Note: you can't see inside, so filling cavities is shoot-and-hope."}} },
+  { id:"solid", q:"Solid parts printing",
+    A:{label:"FDM", desc:"easier casting, larger",
+       recipe:{title:"Print solid parts on FDM", body:"Cheaper, makes casting easier, good for larger builds. No UV/IPA post-processing needed."}},
+    B:{label:"Resin / SLA", desc:"precise, small",
+       recipe:{title:"Print solid parts on resin/SLA", body:"Much more precise (small builds). Apply a THOROUGH UV cure + IPA wash — uncured resin inhibits platinum-cure silicone where they contact."}} },
+  { id:"tubing", q:"Tubing attachment",
+    A:{label:"Barbs", desc:"printed barbs",
+       recipe:{title:"Attach tubing via printed barbs", body:"Slide tubing onto each barbed shaft. Leave enough spacing between barbs for the tubing."}},
+    B:{label:"Insert + coupler", desc:"threaded insert",
+       recipe:{title:"Attach tubing via threaded insert + coupler", body:"Heat-set a threaded insert into a slightly-undersized hole with a soldering iron, then screw in a threaded push-fit coupler. Roomy/expensive — best when you have space (e.g. LM builds)."}} },
+  { id:"filling", q:"Filling method",
+    A:{label:"Back-fill", desc:"then top up tubes",
+       recipe:{title:"Fill by back-filling", body:"Introduce fluid behind the tubing at the interface, fill the tubes most of the way, THEN attach. Tap out air bubbles."}},
+    B:{label:"Direct syringe", desc:"if small enough",
+       recipe:{title:"Fill with a direct syringe", body:"If the assembly is small/accessible enough, inject directly with a fine syringe. Tap out air bubbles."}} },
+];
+const MAINT = {
+  A:"Maintenance (optical): black food dye lasts ~days–week then goes gummy — flush & refill. A flush system makes this fast.",
+  B:"Maintenance (liquid metal): the NaOH cap is consumed quickly — replenish it, work under argon, or use an alternative conductor. Keep the LM capped to avoid an oxide skin."
+};
+const ORDER = ["solid","tip","tubing","filling","transduction"];
+const state = { transduction:"A", tip:"A", solid:"A", tubing:"A", filling:"A" };
+
+function render(){
+  document.getElementById("flow").innerHTML = FORKS.map((f,i)=>`
+    <div class="node">
+      <div class="q"><span class="n">${i+1}</span>${f.q}</div>
+      <div class="opts">
+        ${["A","B"].map(side=>{
+          const o=f[side]; const sel = state[f.id]===side ? "sel":"";
+          return `<div class="opt ${sel}" data-side="${side}" onclick="pick('${f.id}','${side}')">
+                    <span class="ol">${o.label}</span><span class="od">${o.desc}</span></div>`;
+        }).join("")}
+      </div>
+    </div>`).join("");
+  document.getElementById("recipe").innerHTML = ORDER.map(id=>{
+    const f = FORKS.find(x=>x.id===id); const o = f[state[id]];
+    return `<li><b>${o.recipe.title}</b><span class="tagline">${o.recipe.body}</span></li>`;
+  }).join("");
+  document.getElementById("chips").innerHTML = FORKS.map(f=>{
+    const side=state[f.id]; return `<span class="chip ${side}">${f.q}: ${f[side].label}</span>`;
+  }).join("");
+  document.getElementById("maint").textContent = MAINT[state.transduction];
+  applyFilter();
+}
+function pick(id,side){ state[id]=side; render(); }
+function preset(kind){
+  Object.assign(state, kind==="optical"
+    ? {transduction:"A",tip:"A",solid:"A",tubing:"A",filling:"A"}
+    : {transduction:"B",tip:"B",solid:"B",tubing:"B",filling:"B"});
+  render();
+}
+function toggleFilter(){
+  const on = document.body.classList.toggle('filtered');
+  const b = document.getElementById('viewBtn');
+  b.classList.toggle('on', on);
+  b.textContent = on ? '👁 Showing my workflow' : '👁 View this workflow';
+  applyFilter();
+}
+function applyFilter(){
+  const on = document.body.classList.contains('filtered');
+  document.querySelectorAll('.forkblock, section[data-fork]').forEach(el=>{
+    const f = el.dataset.fork, s = el.dataset.side;
+    el.style.display = (on && f && state[f] !== s) ? 'none' : '';
+  });
+}
+function copyRecipe(){
+  const lines = ORDER.map((id,i)=>{ const f=FORKS.find(x=>x.id===id); const o=f[state[id]];
+    return `${i+1}. ${o.recipe.title}\n   ${o.recipe.body}`; });
+  const head = "MY BRAILLE-TIP BUILD\n" + FORKS.map(f=>`• ${f.q}: ${f[state[f.id]].label}`).join("\n");
+  const txt = head + "\n\nWORKFLOW:\n" + lines.join("\n") + "\n\n" + MAINT[state.transduction];
+  navigator.clipboard.writeText(txt).then(()=>alert("Workflow copied to clipboard."),
+    ()=>alert("Copy failed — select and copy manually."));
+}
+render();
+</script>
+
+<!-- ===== Lightbox + lazy-load ===== -->
+<div id="lb" onclick="closeLb()">
+  <span class="x" onclick="closeLb()">×</span>
+  <img id="lbImg" alt="" onclick="event.stopPropagation()">
+  <div class="cap" id="lbCap"></div>
+</div>
+<script>
+(function(){
+  document.querySelectorAll('figure img').forEach(img=>{
+    img.loading = 'lazy';
+    img.decoding = 'async';
+    img.addEventListener('click',()=>{
+      document.getElementById('lbImg').src = img.src;
+      const cap = img.closest('figure').querySelector('figcaption');
+      document.getElementById('lbCap').innerHTML = cap ? cap.innerHTML : '';
+      document.getElementById('lb').classList.add('open');
+      document.body.style.overflow = 'hidden';
+    });
+  });
+})();
+function closeLb(){
+  document.getElementById('lb').classList.remove('open');
+  document.body.style.overflow = '';
+}
+document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeLb(); });
+</script>
+</body>
+</html>
