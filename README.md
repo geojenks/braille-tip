@@ -10,3 +10,9 @@ In this folder are the main code for interpretting the sensor's signal. Included
 
 # Fabrication
 This folder contains the STL files for the mould needed to make the sensor, and the base of the sensor itself.
+
+## Parametric CAD generator
+[`cad/`](cad/) holds **braillegen** — an OpenSCAD generator that builds the tip, channel base,
+pin tool and mould from a few parameters (taxel count, flat/curved membrane, barb vs heat-set
+tube coupling, tube ID/OD). It prints a size + thinnest-feature + FDM-vs-resin report. See
+[`cad/README.md`](cad/README.md).
