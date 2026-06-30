@@ -21,6 +21,22 @@ frustum**: channels fan *down-and-out* from the taxel grid to a coarser coupling
 underside. The minimum coupling pitch and the base height are derived automatically from the
 fitting you choose, so channels never collide and never leave the body.
 
+## Interactive preview (`preview.html`)
+
+A self-contained 3D viewer to mix &amp; match the three headline variables — **size** (taxel
+rings), **spacing** (pitch) and **tube coupling** (barbs vs heat-push) — and orbit/zoom/slice
+the result, with a live size + resin-verdict readout. It loads pre-rendered STLs, so first
+generate them, then serve this folder (browsers block local `file://` STL fetches):
+
+```bash
+./make_previews.sh                 # or: .\make_previews.ps1   (writes preview_stl/)
+python -m http.server              # then open http://localhost:8000/preview.html
+```
+
+Deep-link a specific configuration (handy from the build flowchart):
+`preview.html?rings=3&pitch=2.5&coupling=heatset&view=base&cut=1`. Toggle **Cross-section** to
+slice the part and see the internal channels.
+
 ## Requirements
 
 [OpenSCAD](https://openscad.org) (tested on 2021.01). Either install it, or drop the portable
